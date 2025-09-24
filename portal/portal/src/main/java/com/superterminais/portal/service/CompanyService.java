@@ -3,12 +3,21 @@ package com.superterminais.portal.service;
 import com.superterminais.portal.dto.CompanyRegistrationRequest;
 import com.superterminais.portal.exception.RegistrationException;
 import com.superterminais.portal.model.Company;
+import com.superterminais.portal.model.ForeignPerson;
 import com.superterminais.portal.model.LegalPerson;
 import com.superterminais.portal.model.NaturalPerson;
 import com.superterminais.portal.model.enums.CompanyStatus;
 import com.superterminais.portal.repository.CompanyRepository;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.security.core.Authentication;
+
+// import br.com.caelum.stella.validation.CNPJValidator;
+import br.com.caelum.stella.validation.CPFValidator;
+import br.com.caelum.stella.validation.InvalidStateException;
 
 @Service
 public class CompanyService {
@@ -32,23 +41,49 @@ public class CompanyService {
             case NATURAL_PERSON:
                 company = createNaturalPerson(request);
                 break;
+            case FOREIGN_PERSON:
+                company = createForeignPerson(request);
+                break;
             default:
                 throw new RegistrationException("Unsupported company type.");
         }
 
-        // Apply business rules for status based on user type
-        if (request.isRegisteredByInternalUser()) {
-            // [RN01] If the registration is done by an internal user, it should be auto-approved. 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isInternalUser = authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_INTERNAL"));
+
+            // Apply business rules for status based on user type
+         if (isInternalUser) {
             company.setStatus(CompanyStatus.APPROVED);
         } else {
-            // [RN02] If the registration is done by an external user, it must await approval. 
             company.setStatus(CompanyStatus.PENDING_APPROVAL);
         }
 
         return companyRepository.save(company);
     }
 
+     private ForeignPerson createForeignPerson(CompanyRegistrationRequest request) {
+        // Validar se o Identificador Estrangeiro já existe
+        companyRepository.findByForeignId(request.getForeignId()).ifPresent(c -> {
+            throw new RegistrationException("Foreign ID already registered.");
+        });
+
+        ForeignPerson foreignPerson = new ForeignPerson();
+        foreignPerson.setCorporateName(request.getCorporateName());
+        foreignPerson.setForeignId(request.getForeignId());
+        populateCommonFields(foreignPerson, request);
+        return foreignPerson;
+    }
+
     private LegalPerson createLegalPerson(CompanyRegistrationRequest request) {
+
+        // try {
+        //     CNPJValidator validator = new CNPJValidator();
+        //     validator.assertValid(request.getCnpj());
+        // } catch (InvalidStateException e) {
+        //     throw new RegistrationException("invalid CNPJ ");
+        // }
+        
         // [FE02][FE04] Check if CNPJ already exists
         companyRepository.findByCnpj(request.getCnpj()).ifPresent(c -> {
             throw new RegistrationException("CNPJ already registered.");
@@ -62,6 +97,13 @@ public class CompanyService {
     }
 
     private NaturalPerson createNaturalPerson(CompanyRegistrationRequest request) {
+
+        try {
+            CPFValidator validator = new CPFValidator();
+            validator.assertValid(request.getCpf());
+        } catch (InvalidStateException e) {
+            throw new RegistrationException("Invalid CPF ");
+        }
         // [FE03][FE05] Check if CPF already exists
         companyRepository.findByCpf(request.getCpf()).ifPresent(c -> {
             throw new RegistrationException("CPF already registered.");

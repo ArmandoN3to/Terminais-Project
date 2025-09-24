@@ -1,6 +1,7 @@
 package com.superterminais.portal.repository;
 
 import com.superterminais.portal.model.Company;
+import com.superterminais.portal.model.ForeignPerson;
 import com.superterminais.portal.model.LegalPerson;
 import com.superterminais.portal.model.NaturalPerson;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,5 +29,13 @@ public interface CompanyRepository extends JpaRepository<Company, UUID> {
      * @return an Optional containing the found NaturalPerson or an empty Optional if not found.
      */
     Optional<NaturalPerson> findByCpf(String cpf);
+
+    /**
+     * Finds a ForeignPerson entity by its unique foreign identifier.
+     *
+     * @param foreignId The foreign ID to search for.
+     * @return an Optional containing the found ForeignPerson or an empty Optional if not found.
+     */
+    Optional<ForeignPerson> findByForeignId(String foreignId);
 
 }

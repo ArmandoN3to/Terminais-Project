@@ -17,28 +17,38 @@ java {
 repositories {
 	mavenCentral()
 	flatDir {
-        dirs 'libs' // Aponta para a pasta que criamos
+        dirs 'libs' 
     }
 }
 
 dependencies {
-    // Dependências do Spring que o Gradle deve baixar da internet
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'br.com.caelum.stella:caelum-stella-core:2.1.6'
 
-    // Driver do SQLite que o Gradle também deve baixar
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // JWT Library (JJWT)
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
+    // Driver do SQLite 
     runtimeOnly 'org.xerial:sqlite-jdbc:3.45.3.0'
 
-    // Aqui está a mágica: forçamos o uso do arquivo local para o dialeto
-    // tanto para o código principal (implementation) quanto para os testes (testImplementation)
+
     implementation files('libs/hibernate-community-dialects-6.4.4.Final.jar')
     testImplementation files('libs/hibernate-community-dialects-6.4.4.Final.jar')
 	
 
-    // Dependência de teste padrão do Spring
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs.add("-parameters")
 }
