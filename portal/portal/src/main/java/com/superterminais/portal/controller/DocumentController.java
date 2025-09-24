@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/companies/{companyId}/documents")
 public class DocumentController {
@@ -21,7 +22,7 @@ public class DocumentController {
 
     @PostMapping
     public ResponseEntity<Attachment> uploadDocument(
-            @PathVariable UUID companyId,
+            @PathVariable("companyId") UUID companyId, 
             @RequestParam("file") MultipartFile file) {
         
         Attachment attachment = fileStorageService.storeFile(file, companyId);
