@@ -1,68 +1,73 @@
 package com.superterminais.portal.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.superterminais.portal.model.enums.CompanyStatus;
+import com.superterminais.portal.model.enums.Profile;
+import jakarta.persistence.*;
+import java.util.UUID;
 
 @Entity
-public class Company {
-    @Id 
-    @GeneratedValue(strategy = GenerationType.IDENTITY) 
-    private Long id;
+@Table(name = "companies")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "company_discriminator", discriminatorType = DiscriminatorType.STRING)
+public abstract class Company {
 
-    private String personType; 
-    private String name;
-    private String cpf;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "trade_name") // Nome Fantasia
     private String tradeName;
-    private String status; 
 
-    public Long getId() {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Profile profile;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CompanyStatus status;
+
+    @Column(name = "direct_billing", nullable = false)
+    private boolean directBilling;
+
+    // Getters and Setters
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
-    }
-
-    public String getPersonType() {
-        return personType;
-    }
-
-    public void setPersonType(String tipoPessoa) {
-        this.personType = tipoPessoa;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String nome) {
-        this.name = nome;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
     }
 
     public String getTradeName() {
         return tradeName;
     }
 
-    public void setTradeName(String nomeFantasia) {
-        this.tradeName = nomeFantasia;
+    public void setTradeName(String tradeName) {
+        this.tradeName = tradeName;
     }
 
-    public String getStatus() {
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public CompanyStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(CompanyStatus status) {
         this.status = status;
     }
-}
 
+    public boolean isDirectBilling() {
+        return directBilling;
+    }
+
+    public void setDirectBilling(boolean directBilling) {
+        this.directBilling = directBilling;
+    }
+}
