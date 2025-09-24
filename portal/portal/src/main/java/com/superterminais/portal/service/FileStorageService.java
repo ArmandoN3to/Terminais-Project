@@ -60,8 +60,18 @@ public class FileStorageService {
         var company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new RegistrationException("Company not found with id " + companyId));
 
+        // (M06) 
+        boolean isDuplicate = company.getAttachments().stream()
+                .anyMatch(attachment -> attachment.getFileName().equalsIgnoreCase(originalFileName));
+
+        if (isDuplicate) {
+            throw new RegistrationException("Arquivo duplicado");// [cite: 1]
+        }
+        
+
         String newFileName = companyId.toString() + "_" + System.currentTimeMillis() + "_" + originalFileName;
         Path targetLocation = this.fileStorageLocation.resolve(newFileName);
+        
 
         try {
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);

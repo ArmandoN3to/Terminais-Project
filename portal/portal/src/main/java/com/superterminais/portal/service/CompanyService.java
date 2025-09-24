@@ -11,6 +11,10 @@ import com.superterminais.portal.repository.CompanyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// import br.com.caelum.stella.validation.CNPJValidator;
+import br.com.caelum.stella.validation.CPFValidator;
+import br.com.caelum.stella.validation.InvalidStateException;
+
 @Service
 public class CompanyService {
 
@@ -66,6 +70,14 @@ public class CompanyService {
     }
 
     private LegalPerson createLegalPerson(CompanyRegistrationRequest request) {
+
+        // try {
+        //     CNPJValidator validator = new CNPJValidator();
+        //     validator.assertValid(request.getCnpj());
+        // } catch (InvalidStateException e) {
+        //     throw new RegistrationException("invalid CNPJ ");
+        // }
+        
         // [FE02][FE04] Check if CNPJ already exists
         companyRepository.findByCnpj(request.getCnpj()).ifPresent(c -> {
             throw new RegistrationException("CNPJ already registered.");
@@ -79,6 +91,13 @@ public class CompanyService {
     }
 
     private NaturalPerson createNaturalPerson(CompanyRegistrationRequest request) {
+
+        try {
+            CPFValidator validator = new CPFValidator();
+            validator.assertValid(request.getCpf());
+        } catch (InvalidStateException e) {
+            throw new RegistrationException("Invalid CPF ");
+        }
         // [FE03][FE05] Check if CPF already exists
         companyRepository.findByCpf(request.getCpf()).ifPresent(c -> {
             throw new RegistrationException("CPF already registered.");

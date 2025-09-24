@@ -25,6 +25,7 @@ dependencies {
     // Dependências do Spring que o Gradle deve baixar da internet
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'br.com.caelum.stella:caelum-stella-core:2.1.6'
 
     // Driver do SQLite que o Gradle também deve baixar
     runtimeOnly 'org.xerial:sqlite-jdbc:3.45.3.0'
@@ -41,4 +42,8 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs.add("-parameters")
 }
