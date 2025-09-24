@@ -3,6 +3,9 @@ package com.superterminais.portal.model;
 import com.superterminais.portal.model.enums.CompanyStatus;
 import com.superterminais.portal.model.enums.Profile;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -28,6 +31,13 @@ public abstract class Company {
 
     @Column(name = "direct_billing", nullable = false)
     private boolean directBilling;
+
+    @OneToMany(
+        mappedBy = "company",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<Attachment> attachments = new ArrayList<>();
 
     // Getters and Setters
 
@@ -69,5 +79,13 @@ public abstract class Company {
 
     public void setDirectBilling(boolean directBilling) {
         this.directBilling = directBilling;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 }
