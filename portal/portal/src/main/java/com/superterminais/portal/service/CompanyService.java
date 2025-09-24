@@ -3,6 +3,7 @@ package com.superterminais.portal.service;
 import com.superterminais.portal.dto.CompanyRegistrationRequest;
 import com.superterminais.portal.exception.RegistrationException;
 import com.superterminais.portal.model.Company;
+import com.superterminais.portal.model.ForeignPerson;
 import com.superterminais.portal.model.LegalPerson;
 import com.superterminais.portal.model.NaturalPerson;
 import com.superterminais.portal.model.enums.CompanyStatus;
@@ -32,6 +33,9 @@ public class CompanyService {
             case NATURAL_PERSON:
                 company = createNaturalPerson(request);
                 break;
+            case FOREIGN_PERSON:
+                company = createForeignPerson(request);
+                break;
             default:
                 throw new RegistrationException("Unsupported company type.");
         }
@@ -46,6 +50,19 @@ public class CompanyService {
         }
 
         return companyRepository.save(company);
+    }
+
+     private ForeignPerson createForeignPerson(CompanyRegistrationRequest request) {
+        // Validar se o Identificador Estrangeiro já existe
+        companyRepository.findByForeignId(request.getForeignId()).ifPresent(c -> {
+            throw new RegistrationException("Foreign ID already registered.");
+        });
+
+        ForeignPerson foreignPerson = new ForeignPerson();
+        foreignPerson.setCorporateName(request.getCorporateName());
+        foreignPerson.setForeignId(request.getForeignId());
+        populateCommonFields(foreignPerson, request);
+        return foreignPerson;
     }
 
     private LegalPerson createLegalPerson(CompanyRegistrationRequest request) {

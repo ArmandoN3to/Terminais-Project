@@ -20,7 +20,8 @@ public class CompanyRegistrationRequest {
     private String name;
     private String cpf;
     
-    // We will add Foreign Person fields here later
+    // Foreign Person fields
+    private String foreignId;
 
     // Getters and Setters for all fields...
     
@@ -96,5 +97,13 @@ public class CompanyRegistrationRequest {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
+    }
+
+    public String getForeignId() {
+        return foreignId;
+    }
+
+     public void setForeignId(String foreignId) {
+        this.foreignId = foreignId;
     }
 }
