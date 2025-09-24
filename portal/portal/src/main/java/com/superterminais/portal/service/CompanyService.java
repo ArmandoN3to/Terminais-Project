@@ -8,8 +8,12 @@ import com.superterminais.portal.model.LegalPerson;
 import com.superterminais.portal.model.NaturalPerson;
 import com.superterminais.portal.model.enums.CompanyStatus;
 import com.superterminais.portal.repository.CompanyRepository;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.security.core.Authentication;
 
 // import br.com.caelum.stella.validation.CNPJValidator;
 import br.com.caelum.stella.validation.CPFValidator;
@@ -44,12 +48,14 @@ public class CompanyService {
                 throw new RegistrationException("Unsupported company type.");
         }
 
-        // Apply business rules for status based on user type
-        if (request.isRegisteredByInternalUser()) {
-            // [RN01] If the registration is done by an internal user, it should be auto-approved. 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isInternalUser = authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_INTERNAL"));
+
+            // Apply business rules for status based on user type
+         if (isInternalUser) {
             company.setStatus(CompanyStatus.APPROVED);
         } else {
-            // [RN02] If the registration is done by an external user, it must await approval. 
             company.setStatus(CompanyStatus.PENDING_APPROVAL);
         }
 
