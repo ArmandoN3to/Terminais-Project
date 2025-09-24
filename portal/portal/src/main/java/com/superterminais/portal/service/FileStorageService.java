@@ -15,10 +15,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import java.util.List;
 
 
 @Service
 public class FileStorageService {
+
+    private static final List<String> ALLOWED_MIME_TYPES = List.of(
+            "application/pdf",
+            "image/png",
+            "image/jpeg"
+    );
 
     private final Path fileStorageLocation;
     private final AttachmentRepository attachmentRepository;
@@ -37,6 +44,13 @@ public class FileStorageService {
     }
 
     public Attachment storeFile(MultipartFile file, UUID companyId) {
+        
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_MIME_TYPES.contains(contentType)) {
+            // [FE10] Documento obrigatório com formato inválido. Mensagem de [M08]
+            throw new RegistrationException("São válidos somente arquivos do tipo: pdf, png, jpg ou jpeg.");
+        }
+
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
 
         if (originalFileName.contains("..")) {
@@ -46,7 +60,6 @@ public class FileStorageService {
         var company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new RegistrationException("Company not found with id " + companyId));
 
-        // Construct a unique file name
         String newFileName = companyId.toString() + "_" + System.currentTimeMillis() + "_" + originalFileName;
         Path targetLocation = this.fileStorageLocation.resolve(newFileName);
 
