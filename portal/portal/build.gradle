@@ -1,0 +1,44 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.6'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.superterminais'
+version = '0.0.1-SNAPSHOT'
+description = 'Teste-superterminais'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+	flatDir {
+        dirs 'libs' // Aponta para a pasta que criamos
+    }
+}
+
+dependencies {
+    // Dependências do Spring que o Gradle deve baixar da internet
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Driver do SQLite que o Gradle também deve baixar
+    runtimeOnly 'org.xerial:sqlite-jdbc:3.45.3.0'
+
+    // Aqui está a mágica: forçamos o uso do arquivo local para o dialeto
+    // tanto para o código principal (implementation) quanto para os testes (testImplementation)
+    implementation files('libs/hibernate-community-dialects-6.4.4.Final.jar')
+    testImplementation files('libs/hibernate-community-dialects-6.4.4.Final.jar')
+	
+
+    // Dependência de teste padrão do Spring
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
