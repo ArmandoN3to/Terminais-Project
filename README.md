@@ -72,5 +72,47 @@ A API segue os padrões RESTful. Todas as rotas (exceto `/api/auth/login`) exige
 ```json
 {
     "username": "user.externo",
-    "password": "senha123"
+     "password": "senha123"
 }
+```
+
+### Empresas
+
+| Método | Endpoint         | Proteção                             | Descrição                                                              |
+| :----- | :--------------- | :----------------------------------- | :--------------------------------------------------------------------- |
+| `POST` | `/api/companies` | Autenticado                          | Cadastra uma nova empresa (Pessoa Jurídrica, Física ou Estrangeira). |
+| `GET`  | `/api/companies` | `ROLE_INTERNAL` (não implementado) | Lista todas as empresas cadastradas no sistema.                        |
+
+**Exemplo de Request Body (`POST /api/companies`):**
+```json
+{
+    "companyType": "LEGAL_PERSON",
+    "tradeName": "Nome Fantasia Teste",
+    "profile": "SHIPOWNER",
+    "directBilling": true,
+    "corporateName": "Empresa de Teste LTDA",
+    "cnpj": "11223344000155"
+}
+```
+Exemplo de Request Body (multipart/form-data):
+
+Key: file
+
+Value: (Selecione o arquivo do seu computador)
+
+🏛️ Estrutura do Projeto
+O projeto segue uma arquitetura em camadas para separar as responsabilidades:
+
+config/: Classes de configuração do Spring (Segurança, CORS, etc.).
+
+controller/: Camada da API, responsável por receber as requisições HTTP e retornar as respostas.
+
+dto/: Data Transfer Objects, usados para transportar dados entre as camadas.
+
+exception/: Classes de exceções customizadas.
+
+model/: Entidades de domínio que mapeiam as tabelas do banco de dados.
+
+repository/: Interfaces do Spring Data JPA para acesso ao banco de dados.
+
+service/: Camada de serviço, onde reside a lógica de negócio da aplicação.
